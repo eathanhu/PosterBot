@@ -15,20 +15,33 @@ BOT_TOKEN = "1991174184:AAE4O-Hh8xBrX7uzczW2GgVCfmInPKd4nrs"
 
 API_NETFLIX = "https://netflix.the-zake.workers.dev/?url="
 API_PRIME = "https://primevideo.the-zake.workers.dev?url="
-API_BMS = "https://bookmyshow.the-zake.workers.dev/?url="
+API_BMS = "https://bookmyshow.the-zake.workers.dev/?url=" #book my show
+API_SPOTIFY = "https://spotifydl.the-zake.workers.dev/?url=" 
+API_APPLETV = "https://appletv.the-zake.workers.dev/url="
 
 
 # ---------- /start ----------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(
-        "👋 Hello!\n\n"
-        "🎬 Fetch Netflix / Prime posters\n\n"
+        user = update.effective_user
+        name = user.first_name if user.first_name else "there"
+        await update.message.reply_text(
+        f"👋<b> Hello! {name}</b>\n\n"
+        "I am Poster Fetching bot and I Easily fetch high-quality posters from platforms like Netflix, Prime Video, Apple TV, BookMyShow, and Spotify.\n"
+        "Simply select a mode, send the relevant link, and receive posters instantly. \n\n"
+        "<b>How to use:</b>\n"
+        "<blockquote>"
+        " 1️⃣ Select a mode (for example: <code>/netflix</code>)\n "
+        "2️⃣ The selected mode will be activated \n "
+        "3️⃣ Send the relevant link (Netflix, Prime, etc.)\n " 
+        "4️⃣ To switch modes, simply send another command like <code>/prime</code></blockquote>\n\n"
+        "<b>Available Modes:</b>\n"
         "/netflix\n"
-        "/prime\n\n"
-        "/bookmyshow\n\n"
-        "Adding more soon......."
-        "/appletv\n"
-    )
+        "/prime\n"
+        "/bookmyshow\n"
+        "/appletv {work in progress}\n"
+        "/spotify {work in progress}\n\n"
+        "<blockquote>request will be taken as per demand</blockquote>\n"
+        'Demand your request 👉 <a href="https://t.me/blender_discussion">Click me</a>',parse_mode="HTML",disable_web_page_preview=True)
 
 
 # ---------- /netflix ----------
@@ -249,6 +262,8 @@ async def set_commands(app):
         BotCommand("netflix", "Get Netflix poster"),
         BotCommand("prime", "Get Prime Video poster"),
         BotCommand("bookmyshow", "Get book my show poster"),
+        BotCommand("spotify", "Get spotify poster"),
+        BotCommand("appletv", "Get apple tv poster"),
     ]
     await app.bot.set_my_commands(commands)
 
