@@ -1,5 +1,6 @@
 #import nest_asyncio
 #nest_asyncio.apply()
+import asyncio
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
 from telegram.ext import (
@@ -37,7 +38,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "<b>Available Modes:</b>\n"
         "/netflix\n"
         "/prime\n"
-        "/bookmyshow\n"
+        "/bookmyshow\n\n"
+        #"/appletv {work in progress}\n"
+        #"/spotify {work in progress}\n\n"
+        "<b>Work In progress Modes:</b>\n"
         "/appletv {work in progress}\n"
         "/spotify {work in progress}\n\n"
         "<blockquote>request will be taken as per demand</blockquote>\n"
@@ -63,6 +67,18 @@ async def bookmyshow(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["mode"] = "bookmyshow"
     await update.message.reply_text("Book my show Mode activated: ✅ \n\n<b>Send Book my show link</b>",parse_mode="HTML")
 
+# ---------- /spotify ----------
+async def bookmyshow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
+    context.user_data["mode"] = "spotify"
+    await update.message.reply_text("Spotify Mode activated: ✅ \n\n<b>Send Spotify link</b>",parse_mode="HTML")
+
+# ---------- /apple tv ----------
+async def bookmyshow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
+    context.user_data["mode"] = "bookmyshow"
+    await update.message.reply_text("Book my show Mode activated: ✅ \n\n<b>Send Book my show link</b>",parse_mode="HTML")
+
 # ---------- Handle links ----------
 async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = update.message.text
@@ -71,6 +87,9 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ===== NETFLIX =====
     if mode == "netflix":
         if "netflix.com/" not in link:
+            process=await update.message.reply_text("Processing... ⏳")
+            await asyncio.sleep(2)
+            await process.delete()
             await update.message.reply_text("❌ Invalid Netflix link")
             return
 
@@ -100,6 +119,9 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ===== PRIME VIDEO =====
     elif mode == "prime":
         if "primevideo.com/detail/" not in link:
+            process=await update.message.reply_text("Processing... ⏳")
+            await asyncio.sleep(2)
+            await process.delete()
             await update.message.reply_text("❌ Invalid Prime link")
             return
 
@@ -149,6 +171,9 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ===== BOOK MY SHOW =====
     if mode == "bookmyshow":
         if "in.bookmyshow.com/" not in link:
+            process=await update.message.reply_text("Processing... ⏳")
+            await asyncio.sleep(2)
+            await process.delete()
             await update.message.reply_text("❌ Invalid Book my show link")
             return
 
