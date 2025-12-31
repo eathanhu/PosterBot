@@ -18,7 +18,8 @@ API_NETFLIX = "https://netflix.the-zake.workers.dev/?url="
 API_PRIME = "https://primevideo.the-zake.workers.dev?url="
 API_BMS = "https://bookmyshow.the-zake.workers.dev/?url=" #book my show
 API_SPOTIFY = "https://spotifydl.the-zake.workers.dev/?url="
-API_APPLETV = "https://appletv.the-zake.workers.dev/url="
+API_APPLETV = "https://appletv.the-zake.workers.dev/?url=" 
+API_YOUTUBE = "https://youtubedl.the-zake.workers.dev/?url="
 
 
 # ---------- /start ----------
@@ -40,9 +41,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "/netflix\n"
         "/prime\n"
         "/bookmyshow\n"
-        "/spotify\n\n"
+        "/spotify\n"
+        "/appletv\n"
+        "/youtube\n\n"
         "<b>Work In progress Modes:</b>\n"
-        "/appletv {work in progress}\n"
+        "None:\n\n"
         "<blockquote>request will be taken as per demand</blockquote>\n"
         'Demand your request 👉 <a href="https://t.me/blender_discussion">Click me</a>',parse_mode="HTML",disable_web_page_preview=True)
 
@@ -73,10 +76,17 @@ async def spotify(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Spotify Mode activated: ✅ \n\n<b>Send Spotify link</b>",parse_mode="HTML")
 
 # ---------- /apple tv ----------
-async def bookmyshow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def appletv(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     context.user_data["mode"] = "appletv"
-    await update.message.reply_text("Book my show Mode activated: ✅ \n\n<b>Send Book my show link</b>",parse_mode="HTML")
+    await update.message.reply_text("Apple TV Mode activated: ✅ \n\n<b>Send Apple TV link</b>",parse_mode="HTML")
+
+# ---------- /youtube ----------
+async def youtube(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
+    context.user_data["mode"] = "youtube"
+    await update.message.reply_text("Youtube Mode activated: ✅ \n\n<b>Send Youtube link</b>",parse_mode="HTML")
+
 
 # ---------- Handle links ----------
 async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -201,17 +211,17 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # ===== SPOTIFY =====
     if mode == "spotify":
-        if "open.spotify.com/track" not in link:
-            process=await update.message.reply_text("Processing... ⏳")
-            await asyncio.sleep(2)
-            await process.delete()
-            await update.message.reply_text("❌ Invalid Spotify link")
-            return
         if "open.spotify.com/artist" in link:
-            process=await update.message.reply_text("Processing... ⏳")
+            process1=await update.message.reply_text("Processing... ⏳")
             await asyncio.sleep(2)
-            await process.delete()
+            await process1.delete()
             await update.message.reply_text("❌ This is a artist Spotify link\n Please send track link")
+            return
+        if "open.spotify.com/track" not in link:
+            process2=await update.message.reply_text("Processing... ⏳")
+            await asyncio.sleep(2)
+            await process2.delete()
+            await update.message.reply_text("❌ Invalid Spotify link")
             return
 
         data = requests.get(API_SPOTIFY + link).json()
@@ -248,6 +258,70 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Choose an option:",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
+    
+     # ===== APPLE TV =====
+    if mode == "appletv":
+        if "tv.apple.com/" not in link:
+            process=await update.message.reply_text("Processing... ⏳")
+            await asyncio.sleep(2)
+            await process.delete()
+            await update.message.reply_text("❌ Invalid Apple tv link")
+            return
+
+        data = requests.get(API_APPLETV + link).json()
+        poster2 = data.get("poster")
+        name = data.get("display_title")
+
+        if not poster2:
+            await update.message.reply_text("❌ Poster not found")
+            return
+
+        context.user_data["poster2"] = poster2
+        context.user_data["display_title"] = name
+
+        keyboard = [
+            [
+                InlineKeyboardButton("🖼 Poster", callback_data="atv_poster"),
+                InlineKeyboardButton("🖼+🔗 Poster + Link", callback_data="atv_both"),
+                InlineKeyboardButton("🔗 Link", callback_data="atv_link"),
+            ]
+        ]
+
+        await update.message.reply_text(
+            "Choose an option:",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+    
+     # ===== YOUTUBE =====
+    if mode == "youtube":
+        if "youtu.be/" not in link and "youtube.com/" not in link:
+            process=await update.message.reply_text("Processing... ⏳")
+            await asyncio.sleep(2)
+            await process.delete()
+            await update.message.reply_text("❌ Invalid youtube link")
+            return
+
+        data = requests.get(API_YOUTUBE + link).json()
+        thumbnail2 = data.get("thumbnail")
+
+        if not thumbnail2:
+            await update.message.reply_text("❌ Poster not found")
+            return
+
+        context.user_data["thumbnail2"] = thumbnail2
+
+        keyboard = [
+            [
+                InlineKeyboardButton("🖼 Poster", callback_data="yt_poster"),
+                InlineKeyboardButton("🖼+🔗 Poster + Link", callback_data="yt_both"),
+                InlineKeyboardButton("🔗 Link", callback_data="yt_link"),
+            ]
+        ]
+
+        await update.message.reply_text(
+            "Choose an option:",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
 
 
 # ---------- Button handler ----------
@@ -277,6 +351,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     title = context.user_data.get("title")
     author = context.user_data.get("author")
     thumbnail = context.user_data.get("thumbnail")
+
+    # appletv
+    name2 = context.user_data.get("display_title")
+    poster2 = context.user_data.get("poster2")
+
+    #youtube
+    thumbnail2 = context.user_data.get("thumbnail2")
 
     # ===== NETFLIX BUTTONS =====
     if query.data == "nf_poster":
@@ -341,12 +422,35 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_photo(photo=thumbnail,caption="Here is the DDL link: [Click me](" + ddl3 + ")\n\n",parse_mode="Markdown")
 
     if query.data == "spotify_song":
+        minutes, seconds = duration.split(":")
         status = await query.message.reply_text("⬇️ Downloading...")
         await status.edit_text("⬆️ Uploading to Telegram...")
-        await query.message.reply_audio(url,caption=f"\n Extention: {extension}\nSource: {source}\nQuality: {quality}\nDuration: {duration}\nAuthor: {author}\nTitle: {title}\nType: {type}\n")
+        await query.message.reply_audio(url,caption=f"\n Extention: {extension}\nSource: {source}\nQuality: {quality}\nDuration: {minutes} minutes {seconds} seconds\nAuthor: {author}\nTitle: {title}\nType: {type}\n")
         upload=await status.edit_text("✅ Upload complete!")
         await asyncio.sleep(10)
         await upload.delete()
+
+    # ===== APPLE TV BUTTONS =====
+    if query.data == "atv_poster":
+        await query.message.reply_photo(photo=poster2,caption=f"Name: {name2}\n")
+
+    elif query.data == "atv_link":
+        await query.message.reply_text(poster2,disable_web_page_preview=True)
+
+    elif query.data == "atv_both":
+        ddl4 = context.user_data.get("poster2")
+        await query.message.reply_photo(photo=poster2,caption="Here is the DDL link: [Click me](" + ddl4 + ")\n\n",parse_mode="Markdown")
+
+    # ===== YOUTUBE BUTTONS =====
+    if query.data == "yt_poster":
+        await query.message.reply_photo(thumbnail2)
+
+    elif query.data == "yt_link":
+        await query.message.reply_text(thumbnail2,disable_web_page_preview=True)
+
+    elif query.data == "yt_both":
+        ddl5 = context.user_data.get("thumbnail2")
+        await query.message.reply_photo(photo=thumbnail2,caption="Here is the DDL link: [Click me](" + ddl5 + ")\n\n",parse_mode="Markdown")
 
 
 
@@ -358,6 +462,8 @@ app.add_handler(CommandHandler("netflix", netflix))
 app.add_handler(CommandHandler("prime", prime))
 app.add_handler(CommandHandler("bookmyshow", bookmyshow))
 app.add_handler(CommandHandler("spotify", spotify))
+app.add_handler(CommandHandler("appletv", appletv))
+app.add_handler(CommandHandler("youtube", youtube))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_link))
 app.add_handler(CallbackQueryHandler(button_handler))
 
@@ -369,6 +475,7 @@ async def set_commands(app):
         BotCommand("bookmyshow", "Get book my show poster"),
         BotCommand("spotify", "Get spotify poster"),
         BotCommand("appletv", "Get apple tv poster"),
+        BotCommand("youtube", "Get youtube poster(thumbnail)"),
     ]
     await app.bot.set_my_commands(commands)
 
