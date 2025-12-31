@@ -1,5 +1,5 @@
-import nest_asyncio
-nest_asyncio.apply()
+#import nest_asyncio
+#nest_asyncio.apply() FOR GOOGLE COLAN UN COMMENT THESE TWO LINES ELSE LEAVE IT AS IT IS
 import asyncio
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
