@@ -11,6 +11,28 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+PORT = 8080
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+def run_server():
+    HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+
+threading.Thread(target=run_server, daemon=True).start()
+
+
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 BOT_TOKEN = "7755522886:AAGpV2aWXwXj0D_11l0Rfux6do-U1Zq3I5g"
 
