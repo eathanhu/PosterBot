@@ -13,6 +13,7 @@ from telegram.ext import (
 )
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
+import logging
 
 PORT = 8080
 
