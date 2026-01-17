@@ -12,7 +12,7 @@ from telegram.ext import (
     filters
 )
 
-BOT_TOKEN = "1991174184:AAE4O-Hh8xBrX7uzczW2GgVCfmInPKd4nrs"
+BOT_TOKEN = "7755522886:AAGpV2aWXwXj0D_11l0Rfux6do-U1Zq3I5g"
 
 API_NETFLIX = "https://netflix.the-zake.workers.dev/?url="
 API_PRIME = "https://primevideo.the-zake.workers.dev?url="
