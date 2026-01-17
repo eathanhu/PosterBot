@@ -1,1 +1,4 @@
-
+telegram
+python-telegram-bot
+requests
+asyncio
